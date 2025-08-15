@@ -23,3 +23,15 @@ jobs:
 
       - name: Push Docker image
         run: docker push legolas882/demo-backend:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull legolas882/demo-backend:latest
+            docker stop demo-backend || true
+            docker rm demo-backend || true
+            docker run -d --name demo-backend -p 8080:8080 legolas882/demo-backend:latest
